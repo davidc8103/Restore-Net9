@@ -1,46 +1,39 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
-import { Product } from "../../app/models/product";
 import { Button, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
+import { useFetchProductDetailsQuery } from "./catalogApi";
 
 export default function ProductDetails() {
-  const {id} = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
+  const { id } = useParams();
 
-  useEffect(() => {
-    fetch(`https://localhost:5001/api/products/${id}`)
-      .then(response => response.json())
-      .then(data => setProduct(data))
-      .catch(error => console.log(error))
-  }, [id])
-  
-  if (!product) return <div>Loading...</div>
+  const {data: product, isLoading} = useFetchProductDetailsQuery(id ? +id : 0)
 
-  const productDetails =[
-    {label: 'Name', value: product.name},
-    {label: 'Description', value: product.description},
-    {label: 'Type', value: product.type},
-    {label: 'Brand', value: product.brand},
-    {label: 'Quantity in stock', value: product.quantityInStock}
+  if (!product || isLoading) return <div>Loading...</div>
+
+  const productDetails = [
+    { label: 'Name', value: product.name },
+    { label: 'Description', value: product.description },
+    { label: 'Type', value: product.type },
+    { label: 'Brand', value: product.brand },
+    { label: 'Quantity in stock', value: product.quantityInStock }
   ]
 
   return (
-    <Grid container spacing={6} maxWidth='lg' sx={{mx: 'auto'}}>
+    <Grid container spacing={6} maxWidth='lg' sx={{ mx: 'auto' }}>
       <Grid size={6}>
-        <img src={product?.pictureUrl} alt={product.name} style={{width: '100%'}} />
+        <img src={product?.pictureUrl} alt={product.name} style={{ width: '100%' }} />
       </Grid>
       <Grid size={6}>
         <Typography variant="h3">{product.name}</Typography>
-        <Divider sx={{mb: 2}} />
+        <Divider sx={{ mb: 2 }} />
         <Typography variant="h4" color='secondary'>${(product.price / 100).toFixed(2)}</Typography>
         <TableContainer>
           <Table sx={{
-            '& td': {fontSize: '1rem'}
+            '& td': { fontSize: '1rem' }
           }}>
             <TableBody>
               {productDetails.map((detail, index) => (
                 <TableRow key={index}>
-                  <TableCell sx={{fontWeight: 'bold'}}>{detail.label}</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>{detail.label}</TableCell>
                   <TableCell>{detail.value}</TableCell>
                 </TableRow>
               ))}
@@ -49,7 +42,7 @@ export default function ProductDetails() {
         </TableContainer>
         <Grid container spacing={2} marginTop={3}>
           <Grid size={6}>
-            <TextField 
+            <TextField
               variant="outlined"
               type="number"
               label='Quantity in basket'
@@ -59,7 +52,7 @@ export default function ProductDetails() {
           </Grid>
           <Grid size={6}>
             <Button
-              sx={{height: '55px'}}
+              sx={{ height: '55px' }}
               color='primary'
               size='large'
               variant="contained"
